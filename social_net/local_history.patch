@@ -1,0 +1,16 @@
+Index: app/models.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/models.py b/app/models.py
+--- a/app/models.py	
++++ b/app/models.py	(date 1728075331265)
+@@ -19,5 +19,5 @@
+ 
+ 
+ class UserDtoLogin(BaseModel):
+-    login: str
+-    password: str
++    login: str = ""
++    password: str = ""

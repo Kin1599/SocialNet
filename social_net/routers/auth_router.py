@@ -1,21 +1,23 @@
-from fastapi import APIRouter, HTTPException
-from app.db_me import create_new_user, user_login
-from passlib.hash import pbkdf2_sha256
-from app.models import UserDto, UserDtoLogin, UserReg
+from fastapi import APIRouter, HTTPException, Depends
+from app.db_requests import create_new_user, user_login
+from app.models import UserDtoLogin, UserReg
+from sqlalchemy.orm import Session
+from app.config.database import create_session
+from app.auth.auth_handler import signJWT, token_response
+
 
 router = APIRouter(tags=['Auth'])
 
 @router.post("/register")
-def register_new_user(user: UserReg) -> UserDto:
-
-    new_user = create_new_user(login=user.login, name=user.name,
-                           email=user.email, surname=user.surname,
-                            password=user.password)
-    return new_user
+def register_new_user(user: UserReg, db: Session = Depends(create_session)) -> dict[str, str]:
+    new_user = create_new_user(user, db)
+    return signJWT(new_user.id)
 
 @router.post("/login")
-def login(user: UserDtoLogin) -> UserDto:
-    log_user = user_login(login=user.login, password=user.password)
+def login(user: UserDtoLogin, db: Session = Depends(create_session)) -> dict[str, str]:
+    log_user = user_login(user, db)
     if log_user.id:
-        return log_user
+        return signJWT(log_user.id)
     raise HTTPException(status_code=404, detail="Item Not Found")
+
+
